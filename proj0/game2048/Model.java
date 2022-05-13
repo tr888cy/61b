@@ -2,7 +2,7 @@ package game2048;
 
 import java.util.Formatter;
 import java.util.Observable;
-
+import java.lang.reflect.Field;
 
 /** The state of a game of 2048.
  *  @author TODO: YOUR NAME HERE
@@ -113,6 +113,43 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        board.setViewingPerspective(side);
+
+        for (int column = 0; column <= board.size() -1; column ++) {
+
+            for  (int row = board.size() - 1; row > 0; row --) {
+
+                Tile currentTile = board.tile(column, row);
+
+                // if current tile is null, we look for non-null tile below.
+                if (currentTile == null) {
+                    Tile tileBelow = lookTileBelow(column, row - 1, board);
+                    if (tileBelow != null) {
+                        board.move(column, row, tileBelow);
+                        row += 1;
+                        changed = true;
+                    }
+                }
+
+                // current tile is not null
+                else if (currentTile != null) {
+                    Tile tileBelow = lookTileBelow(column, row - 1, board);
+                    if (tileBelow != null) {
+                        // tile below has the same value as current tile
+                        if (currentTile.value() == tileBelow.value()) {
+                            board.move(column, row, tileBelow);
+                            score += board.tile(column, row).value();
+                        } else if (tileBelow.value() != currentTile.value() && row - tileBelow.row() > 1) {
+                            board.move(column, row - 1, tileBelow);
+                        }
+                        changed = true;
+                    }
+                }
+            }
+        }
+        board.setViewingPerspective(Side.NORTH);
+
+
 
         checkGameOver();
         if (changed) {
@@ -120,6 +157,18 @@ public class Model extends Observable {
         }
         return changed;
     }
+
+    public static Tile lookTileBelow(int col, int startRow, Board board) {
+        for (int row = startRow; row >= 0; row --) {
+            Tile tile = board.tile(col, row);
+
+            if (tile != null) {
+                return tile;
+            }
+        }
+        return null;
+    }
+
 
     /** Checks if the game is over and sets the gameOver variable
      *  appropriately.
@@ -138,6 +187,13 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        for (int i=0; i<4; i++){
+            for (int j=0; j<4;j++){
+                if (b.tile(i,j) == null){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +204,16 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        int MAX_PIECE = 2048;
+        for (int i=0; i<4; i++){
+            for (int j=0; j<4;j++){
+                if (b.tile(i,j) != null){
+                    if (b.tile(i,j).value() == MAX_PIECE){
+                        return true;
+                    }
+                }
+                }
+            }
         return false;
     }
 
@@ -159,6 +225,33 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
+
+        for (int i=0; i<3; i++){
+            for (int j=0; j<4;j++){
+                if (b.tile(i,j) == null){
+                    return true;}
+                else {
+                    if (b.tile(i+1,j) == null){
+                        return true;}
+                    else if (b.tile(i+1,j).value() == b.tile(i,j).value()){
+                        return true;}
+                }
+            }
+        }
+
+        for (int j=0; j<3; j++){
+            for (int i=0; i<4;i++){
+                if (b.tile(i,j) == null){
+                    return true;}
+                else {
+                    if (b.tile(i,j+1) == null){
+                        return true;}
+                    else if (b.tile(i,j+1).value() == b.tile(i,j).value()){
+                        return true;}
+                }
+            }
+        }
+
         return false;
     }
 
