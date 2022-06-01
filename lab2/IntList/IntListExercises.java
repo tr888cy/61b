@@ -1,4 +1,7 @@
+
 package IntList;
+
+import org.junit.Test;
 
 public class IntListExercises {
 
@@ -8,11 +11,20 @@ public class IntListExercises {
      *
      * @param lst IntList from Lecture
      */
+
     public static void addConstant(IntList lst, int c) {
         IntList head = lst;
+        if (head.rest == null){
+            head.first += c;
+            return;
+        }
+
         while (head.rest != null) {
             head.first += c;
             head = head.rest;
+        }
+        if (head.rest == null){
+            head.first += c;
         }
     }
 
@@ -26,9 +38,16 @@ public class IntListExercises {
     public static void setToZeroIfMaxFEL(IntList L) {
         IntList p = L;
         while (p != null) {
-            if (firstDigitEqualsLastDigit(max(p))) {
+//            copy from assignment guide； look better than default
+            int currentMax = max(p);
+            boolean firstEqualsLast = firstDigitEqualsLastDigit(currentMax);
+            if (firstEqualsLast) {
                 p.first = 0;
             }
+//            origin code:
+//            if (firstDigitEqualsLastDigit(max(p))) {
+//                p.first = 0;
+//            }
             p = p.rest;
         }
     }
@@ -51,7 +70,7 @@ public class IntListExercises {
      */
     public static boolean firstDigitEqualsLastDigit(int x) {
         int lastDigit = x % 10;
-        while (x > 10) {
+        while (x >= 10) {
             x = x / 10;
         }
         int firstDigit = x % 10;
@@ -75,6 +94,7 @@ public class IntListExercises {
 
         if (currElemIsPrime) {
             lst.first *= lst.first;
+            squarePrimes(lst.rest);
         }
 
         return currElemIsPrime || squarePrimes(lst.rest);
